@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f5f0">
+<title>ドル円変換 | 買い物用</title>
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172a27;background:#f6f5f0;font-synthesis:none}*{box-sizing:border-box}body{margin:0}main{max-width:540px;margin:auto;padding:28px 18px 44px}header{margin-bottom:23px}.eyebrow{font-size:.75rem;font-weight:800;letter-spacing:.14em;color:#47766a;margin:0 0 6px}h1{font-size:1.8rem;letter-spacing:.02em;margin:0}header p{color:#61716c;font-size:.9rem;margin:6px 0 0}.card{background:#fff;border:1px solid #e1e8e3;border-radius:20px;padding:20px;margin-bottom:14px;box-shadow:0 4px 18px #263f3210}.label{display:block;font-size:.82rem;font-weight:700;color:#536961;margin:0 0 9px}.switch{display:grid;grid-template-columns:1fr 1fr;background:#edf2ee;border-radius:12px;padding:4px;gap:4px}.switch button{border:0;border-radius:9px;background:transparent;color:#536961;padding:11px 5px;font:inherit;font-weight:700;cursor:pointer}.switch button[aria-pressed=true]{background:#fff;color:#17624f;box-shadow:0 1px 5px #152f2220}.switch+.label{margin-top:20px}.amount-wrap{display:flex;align-items:center;border:2px solid #b9cdc1;border-radius:14px;padding:0 15px}.amount-wrap:focus-within{border-color:#287c63;box-shadow:0 0 0 3px #287c6322}.currency{font-size:1.7rem;color:#668278;font-weight:700}.amount-wrap input{width:100%;min-width:0;border:0;outline:0;padding:15px 10px;font:700 2rem system-ui;color:#172a27;background:transparent}.result{background:#164f41;color:white;border:0;padding:23px 20px}.result .label{color:#c2ddd2}.result-value{font-size:clamp(2rem,9vw,3rem);font-weight:800;overflow-wrap:anywhere;line-height:1.2}.result-note{font-size:.85rem;color:#c2ddd2;margin:8px 0 0}.details{border-top:1px solid #ffffff38;margin:20px 0 0;padding:12px 0 0}.details div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:.86rem}.details dt{color:#c2ddd2}.details dd{margin:0;text-align:right;font-weight:650}.settings-title{font-size:1rem;margin:0 0 18px}.field{margin-top:18px}.field:first-of-type{margin-top:0}.field-row{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:10px}select,.number{width:100%;min-width:0;height:48px;border:1px solid #cbd9d1;border-radius:10px;background:#fff;color:#172a27;font:inherit;padding:0 10px}.number:focus,select:focus{outline:2px solid #287c63;outline-offset:1px}.suffix{position:relative}.suffix input{padding-right:28px}.suffix span{position:absolute;right:12px;top:13px;color:#61716c}.hint{color:#687b72;font-size:.76rem;line-height:1.5;margin:7px 0 0}.rate-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.rate-display{color:#17624f;font-weight:800;font-size:1.1rem}.rate-row{display:grid;grid-template-columns:1fr auto;gap:10px}.refresh{border:0;border-radius:10px;background:#dcebe2;color:#165e49;padding:0 19px;font:700 .9rem system-ui;cursor:pointer}.refresh:disabled{opacity:.6}.status{font-size:.8rem;color:#536961;line-height:1.5;margin:10px 0 0}footer{color:#718079;font-size:.76rem;line-height:1.7;padding:4px 3px}footer a{color:#36715e}footer p{margin:4px 0}button:focus-visible{outline:3px solid #e1a748;outline-offset:2px}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<header><p class="eyebrow">SHOPPING CONVERTER</p><h1>ドル円変換</h1><p>アメリカでのお買い物に。</p></header>
+<section class="card" aria-label="変換設定">
+<span class="label">変換方向</span><div class="switch" role="group" aria-label="変換方向"><button type="button" data-direction="usd" aria-pressed="true">USD → JPY</button><button type="button" data-direction="jpy" aria-pressed="false">JPY → USD</button></div>
+<span class="label">計算モード</span><div class="switch" role="group" aria-label="計算モード"><button type="button" data-mode="simple" aria-pressed="true">シンプル</button><button type="button" data-mode="actual" aria-pressed="false">実払い</button></div>
+</section>
+<section class="card"><label class="label" id="amount-label" for="amount">商品価格（税別 USD）</label><div class="amount-wrap"><span class="currency" id="amount-symbol" aria-hidden="true">$</span><input id="amount" type="number" inputmode="decimal" min="0" step="any" placeholder="0.00"></div></section>
+<section class="card result" aria-live="polite"><p class="label" id="result-label">換算金額</p><div class="result-value" id="result">金額を入力してください</div><p class="result-note" id="result-note"></p><dl class="details" id="details" hidden></dl></section>
+<section class="card" id="actual-settings"><h2 class="settings-title">実払いの設定</h2><div class="field"><label class="label" for="city">税率</label><div class="field-row"><select id="city"><option value="4.712">ホノルル</option><option value="8.875">ニューヨーク</option><option value="9.75">ロサンゼルス</option><option value="8.625">サンフランシスコ</option><option value="7.75">サンディエゴ</option><option value="8.375">ラスベガス</option><option value="10.25">シカゴ</option><option value="10.35">シアトル</option><option value="6.5">オーランド</option><option value="8.25">ヒューストン</option><option value="0">ポートランド</option><option value="custom">カスタム</option></select><div class="suffix"><input class="number" id="tax" type="number" inputmode="decimal" min="0" step="any" aria-label="税率（パーセント）"><span>%</span></div></div><p class="hint">税率は都市・地区で異なる目安です</p></div>
+<div class="field"><label class="label" for="fee-preset">カード手数料</label><div class="field-row"><select id="fee-preset"><option value="0">0%（現金）</option><option value="1.60">1.60%</option><option value="2.20">2.20%</option><option value="3.63">3.63%</option><option value="3.85">3.85%</option><option value="4.50">4.50%</option><option value="custom">カスタム</option></select><div class="suffix"><input class="number" id="fee" type="number" inputmode="decimal" min="0" step="any" aria-label="カード手数料（パーセント）"><span>%</span></div></div><p class="hint">基準レートに手数料を上乗せして計算します。</p></div></section>
+<section class="card"><div class="rate-top"><label class="label" for="rate">基準レート</label><span class="rate-display" id="rate-display">1 USD = —</span></div><div class="rate-row"><input class="number" id="rate" type="number" inputmode="decimal" min="0" step="any" placeholder="円 / 1 USD" aria-label="基準レート（1ドルあたりの円）"><button class="refresh" id="refresh" type="button">更新</button></div><p class="status" id="rate-status" role="status"></p><p class="hint" id="rate-source"></p></section>
+<footer><p>レート出所：<a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">ExchangeRate-API</a> / Frankfurter</p><p>日次レートのため実際の請求額とは差が出ます</p></footer>
+</main>
+<script>
+function calcUSDToJPY(amountUSD, opts) {
+  if (opts.mode === 'simple') return { totalJPY: amountUSD * opts.rate, totalUSD: amountUSD, taxUSD: 0, effectiveRate: opts.rate };
+  const taxUSD = amountUSD * opts.taxPct / 100;
+  const totalUSD = amountUSD + taxUSD;
+  const effectiveRate = opts.rate * (1 + opts.feePct / 100);
+  return { totalJPY: totalUSD * effectiveRate, totalUSD, taxUSD, effectiveRate };
+}
+function calcJPYToUSD(amountJPY, opts) {
+  if (opts.mode === 'simple') return { shelfUSD: amountJPY / opts.rate, totalUSD: amountJPY / opts.rate, effectiveRate: opts.rate };
+  const effectiveRate = opts.rate * (1 + opts.feePct / 100);
+  const shelfUSD = amountJPY / (effectiveRate * (1 + opts.taxPct / 100));
+  return { shelfUSD, totalUSD: shelfUSD * (1 + opts.taxPct / 100), effectiveRate };
+}
+if (typeof document !== 'undefined') {
+  (() => {
+    const $ = id => document.getElementById(id);
+    const key = 'usd-jpy-shopping-v1';
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (_) {}
+    let state = { direction: saved.direction === 'jpy' ? 'jpy' : 'usd', mode: saved.mode === 'actual' ? 'actual' : 'simple', city: typeof saved.city === 'string' ? saved.city : '4.712', tax: typeof saved.tax === 'string' ? saved.tax : '4.712', feePreset: typeof saved.feePreset === 'string' ? saved.feePreset : '3.63', fee: typeof saved.fee === 'string' ? saved.fee : '3.63', manualRate: typeof saved.manualRate === 'string' ? saved.manualRate : '', lastRate: saved.lastRate && Number.isFinite(Number(saved.lastRate.value)) && Number(saved.lastRate.value) > 0 ? saved.lastRate : null };
+    let requestId = 0;
+    let rateInfo = state.manualRate !== '' ? { kind: 'manual' } : state.lastRate ? { kind: 'previous', ...state.lastRate } : { kind: 'empty' };
+    $('city').value = state.city; if (!$('city').value) $('city').value = 'custom';
+    $('tax').value = state.tax; $('fee-preset').value = state.feePreset; if (!$('fee-preset').value) $('fee-preset').value = 'custom'; $('fee').value = state.fee;
+    $('rate').value = state.manualRate !== '' ? state.manualRate : state.lastRate ? state.lastRate.value : '';
+    function save() { try { localStorage.setItem(key, JSON.stringify(state)); } catch (_) {} }
+    function number(input) { const value = input.value.trim(); return value === '' ? NaN : Number(value); }
+    const yen = n => '¥' + new Intl.NumberFormat('ja-JP', { maximumFractionDigits: 0 }).format(n);
+    const usd = n => '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+    const rateFormat = n => new Intl.NumberFormat('ja-JP', { maximumFractionDigits: 4 }).format(n);
+    function showRate() {
+      const rate = number($('rate'));
+      $('rate-display').textContent = Number.isFinite(rate) && rate > 0 ? '1 USD = ¥' + rateFormat(rate) : '1 USD = —';
+      const messages = { manual: '手入力のレートを優先しています', previous: '前回のレートを表示中', empty: 'レートを取得できませんでした。手入力してください', loading: 'レートを取得中…', auto: '最新の取得レートを表示中' };
+      $('rate-status').textContent = messages[rateInfo.kind];
+      $('rate-source').textContent = rateInfo.source ? '出所：' + rateInfo.source + (rateInfo.date ? ' / 更新：' + rateInfo.date : '') : rateInfo.kind === 'manual' ? '出所：手入力' : '';
+    }
+    function render() {
+      document.querySelectorAll('[data-direction]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.direction === state.direction)));
+      document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+      $('actual-settings').hidden = state.mode !== 'actual';
+      $('amount-label').textContent = state.direction === 'usd' ? '商品価格（税別 USD）' : '予算（JPY）';
+      $('amount-symbol').textContent = state.direction === 'usd' ? '$' : '¥';
+      $('result-label').textContent = state.direction === 'jpy' && state.mode === 'actual' ? 'その円で買える棚価格（税別 USD）' : '換算金額';
+      $('result-note').textContent = ''; $('details').hidden = true; $('details').replaceChildren();
+      showRate();
+      const amount = number($('amount')), rate = number($('rate')), tax = number($('tax')), fee = number($('fee'));
+      if (!Number.isFinite(amount) || amount < 0) { $('result').textContent = $('amount').value === '' ? '金額を入力してください' : '有効な金額を入力してください'; return; }
+      if (!Number.isFinite(rate) || rate <= 0) { $('result').textContent = '有効なレートを入力してください'; return; }
+      if (state.mode === 'actual' && (!Number.isFinite(tax) || tax < 0 || !Number.isFinite(fee) || fee < 0)) { $('result').textContent = '税率と手数料を確認してください'; return; }
+      const opts = { mode: state.mode, taxPct: tax, feePct: fee, rate };
+      const result = state.direction === 'usd' ? calcUSDToJPY(amount, opts) : calcJPYToUSD(amount, opts);
+      if (!Object.values(result).every(Number.isFinite)) { $('result').textContent = '計算できる範囲の数値を入力してください'; return; }
+      $('result').textContent = state.direction === 'usd' ? yen(result.totalJPY) : usd(result.shelfUSD);
+      if (state.mode === 'actual') {
+        const rows = state.direction === 'usd' ? [['商品価格', usd(amount)], ['税額', usd(result.taxUSD)], ['税込合計', usd(result.totalUSD)], ['基準レート', '¥' + rateFormat(rate)], ['実効レート（手数料込み）', '¥' + rateFormat(result.effectiveRate)], ['円合計', yen(result.totalJPY)]] : [['税込合計', usd(result.totalUSD)], ['実効レート（手数料込み）', '¥' + rateFormat(result.effectiveRate)]];
+        rows.forEach(([name, value]) => { const row = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = name; dd.textContent = value; row.append(dt, dd); $('details').append(row); }); $('details').hidden = false;
+      }
+    }
+    document.querySelectorAll('[data-direction]').forEach(b => b.addEventListener('click', () => { state.direction = b.dataset.direction; save(); render(); }));
+    document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { state.mode = b.dataset.mode; save(); render(); }));
+    $('amount').addEventListener('input', render);
+    [['city','tax','city','tax'], ['fee-preset','fee','feePreset','fee']].forEach(([selectId, inputId, selectKey, inputKey]) => {
+      $(selectId).addEventListener('change', () => { state[selectKey] = $(selectId).value; if ($(selectId).value !== 'custom') { $(inputId).value = $(selectId).value; state[inputKey] = $(inputId).value; } save(); render(); });
+      $(inputId).addEventListener('input', () => { $(selectId).value = 'custom'; state[selectKey] = 'custom'; state[inputKey] = $(inputId).value; save(); render(); });
+    });
+    $('rate').addEventListener('input', () => { requestId++; $('refresh').disabled = false; state.manualRate = $('rate').value; rateInfo = { kind: 'manual' }; save(); render(); });
+    async function fetchRate(explicit) {
+      const id = ++requestId;
+      if (explicit) { state.manualRate = ''; save(); }
+      const preserveManual = !explicit && state.manualRate !== '';
+      if (!preserveManual) { rateInfo = { kind: 'loading' }; render(); }
+      $('refresh').disabled = true;
+      const providers = [
+        { url: 'https://open.er-api.com/v6/latest/USD', source: 'ExchangeRate-API', date: data => data.time_last_update_utc },
+        { url: 'https://api.frankfurter.dev/v1/latest?base=USD&symbols=JPY', source: 'Frankfurter', date: data => data.date }
+      ];
+      let found = null;
+      for (const provider of providers) {
+        try {
+          const response = await fetch(provider.url); if (!response.ok) throw new Error('HTTP error');
+          const data = await response.json(), value = Number(data.rates && data.rates.JPY);
+          if (!Number.isFinite(value) || value <= 0) throw new Error('Invalid rate');
+          found = { value, source: provider.source, date: provider.date(data) || '' }; break;
+        } catch (_) {}
+      }
+      if (id !== requestId) return;
+      $('refresh').disabled = false;
+      if (found) { state.lastRate = found; save(); }
+      if (preserveManual) { rateInfo = { kind: 'manual' }; }
+      else if (found) { $('rate').value = found.value; rateInfo = { kind: 'auto', ...found }; }
+      else if (state.lastRate) { $('rate').value = state.lastRate.value; rateInfo = { kind: 'previous', ...state.lastRate }; }
+      else { $('rate').value = ''; rateInfo = { kind: 'empty' }; }
+      render();
+    }
+    $('refresh').addEventListener('click', () => fetchRate(true));
+    render(); fetchRate(false);
+  })();
+}
+</script>
+</body>
+</html>
