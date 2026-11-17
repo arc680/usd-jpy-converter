@@ -21,7 +21,7 @@
 <section class="card" id="actual-settings"><h2 class="settings-title">実払いの設定</h2><div class="field"><label class="label" for="city">税率</label><div class="field-row"><select id="city"><option value="4.712">ホノルル</option><option value="8.875">ニューヨーク</option><option value="9.75">ロサンゼルス</option><option value="8.625">サンフランシスコ</option><option value="7.75">サンディエゴ</option><option value="8.375">ラスベガス</option><option value="10.25">シカゴ</option><option value="10.35">シアトル</option><option value="6.5">オーランド</option><option value="8.25">ヒューストン</option><option value="0">ポートランド</option><option value="custom">カスタム</option></select><div class="suffix"><input class="number" id="tax" type="number" inputmode="decimal" min="0" step="any" aria-label="税率（パーセント）"><span>%</span></div></div><p class="hint">税率は都市・地区で異なる目安です</p></div>
 <div class="field"><label class="label" for="fee-preset">カード手数料</label><div class="field-row"><select id="fee-preset"><option value="0">0%（現金）</option><option value="1.60">1.60%</option><option value="2.20">2.20%</option><option value="3.63">3.63%</option><option value="3.85">3.85%</option><option value="4.50">4.50%</option><option value="custom">カスタム</option></select><div class="suffix"><input class="number" id="fee" type="number" inputmode="decimal" min="0" step="any" aria-label="カード手数料（パーセント）"><span>%</span></div></div><p class="hint">基準レートに手数料を上乗せして計算します。</p></div></section>
 <section class="card"><div class="rate-top"><label class="label" for="rate">基準レート</label><span class="rate-display" id="rate-display">1 USD = —</span></div><div class="rate-row"><input class="number" id="rate" type="number" inputmode="decimal" min="0" step="any" placeholder="円 / 1 USD" aria-label="基準レート（1ドルあたりの円）"><button class="refresh" id="refresh" type="button">更新</button></div><p class="status" id="rate-status" role="status"></p><p class="hint" id="rate-source"></p></section>
-<footer><p>レート出所：<a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">ExchangeRate-API</a> / Frankfurter</p><p>日次レートのため実際の請求額とは差が出ます</p></footer>
+<footer><p>レート出所：<a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">ExchangeRate-API</a> / Frankfurter / Currency-API</p><p>日次レートのため実際の請求額とは差が出ます</p></footer>
 </main>
 <script>
 function calcUSDToJPY(amountUSD, opts) {
@@ -98,17 +98,27 @@ if (typeof document !== 'undefined') {
       if (!preserveManual) { rateInfo = { kind: 'loading' }; render(); }
       $('refresh').disabled = true;
       const providers = [
-        { url: 'https://open.er-api.com/v6/latest/USD', source: 'ExchangeRate-API', date: data => data.time_last_update_utc },
-        { url: 'https://api.frankfurter.dev/v1/latest?base=USD&symbols=JPY', source: 'Frankfurter', date: data => data.date }
+        { url: 'https://open.er-api.com/v6/latest/USD', source: 'ExchangeRate-API', extract: data => { if (data.result === 'error') throw new Error('Provider error'); return { value: data.rates?.JPY, date: data.time_last_update_utc }; } },
+        { url: 'https://api.frankfurter.dev/v1/latest?base=USD&symbols=JPY', source: 'Frankfurter', extract: data => ({ value: data.rates?.JPY, date: data.date }) },
+        { url: 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json', source: 'Currency-API', extract: data => ({ value: data.usd?.jpy, date: data.date }) }
       ];
       let found = null;
-      for (const provider of providers) {
+      async function fetchProvider(provider) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
         try {
-          const response = await fetch(provider.url); if (!response.ok) throw new Error('HTTP error');
-          const data = await response.json(), value = Number(data.rates && data.rates.JPY);
-          if (!Number.isFinite(value) || value <= 0) throw new Error('Invalid rate');
-          found = { value, source: provider.source, date: provider.date(data) || '' }; break;
-        } catch (_) {}
+          const response = await fetch(provider.url, { signal: controller.signal }); if (!response.ok) throw new Error('HTTP error');
+          const { value, date } = provider.extract(await response.json());
+          if (!Number.isFinite(value) || value < 50 || value > 500) throw new Error('Invalid rate');
+          return { value, source: provider.source, date: date || '' };
+        } finally { clearTimeout(timeout); }
+      }
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try { found = await Promise.any(providers.map(fetchProvider)); break; }
+        catch (_) {
+          if (attempt === 0 && id === requestId) await new Promise(resolve => setTimeout(resolve, 1000));
+          else break;
+        }
       }
       if (id !== requestId) return;
       $('refresh').disabled = false;

@@ -24,10 +24,14 @@
 
 ## レート取得
 
-- 起動時に自動取得する。第1候補: `https://open.er-api.com/v6/latest/USD` の `rates.JPY`（更新日時は `time_last_update_utc`）。
-- 失敗したら第2候補: `https://api.frankfurter.dev/v1/latest?base=USD&symbols=JPY` の `rates.JPY`（日付は `date`）。
-- 両方失敗したら、前回保存したレートを使い「前回のレートを表示中」と状態欄に出す。保存もなければ手入力を促す。
-- 更新ボタンで再取得する。手入力した場合は自動取得値より手入力を優先し、その旨が分かる表示にする（再度 更新 を押したら自動取得に戻る、でよい）。
+- 起動時に自動取得する。取得元は3つで、**同時問い合わせして最初に届いた妥当な値を採用**する（2026-11-17 の安定化修正で変更。旧仕様の逐次フォールバックは廃止）:
+  - ExchangeRate-API: `https://open.er-api.com/v6/latest/USD` の `rates.JPY`（更新日時は `time_last_update_utc`、`result: 'error'` は失敗扱い）
+  - Frankfurter: `https://api.frankfurter.dev/v1/latest?base=USD&symbols=JPY` の `rates.JPY`（日付は `date`）
+  - Currency-API: `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json` の `usd.jpy`（日付は `date`）
+- 各リクエストには **8秒タイムアウト**（AbortController）を付ける。全部失敗したら **1回だけ自動再試行**する。
+- 妥当性チェック: レートは有限な数値で 50〜500 の範囲内のときだけ採用する。
+- 全部失敗したら、前回保存したレートを使い「前回のレートを表示中」と状態欄に出す。保存もなければ手入力を促す。
+- 更新ボタンで再取得する。手入力した場合は自動取得値より手入力を優先し、その旨が分かる表示にする（再度 更新 を押したら自動取得に戻る、でよい）。手入力後に裏で進んでいた自動取得が完了しても、手入力レートを上書きしない（requestId で無効化）。
 
 ## ロジック契約（DOM非依存の関数）
 
